@@ -1,4 +1,17 @@
-const services=[["人事制度・人材戦略","等級・評価・報酬などの制度設計から運用まで。人の成長を支える仕組みを整えます。"],["組織・マネジメント支援","経営者・管理職の課題に向き合い、対話を通じて組織の関係性と風土づくりを支援します。"],["EQを活用した人材育成","自分と相手の感情を理解することから。人との関わり方を見つめ、日々の実践につなげます。"],["研修・講座","管理職育成や評価者研修など、対象者と課題に合わせて、現場で生かせる学びを届けます。"]];
-document.querySelector('.cards').innerHTML=services.map(([title,text],i)=>`<article><img src="assets/service${i+1}.jpg" alt="${title}" width="348" height="236"><div class="card-copy"><div class="number">0${i+1}</div><h3>${title}</h3><p>${text}</p><button class="more" data-service="${i}"><span aria-hidden="true">›</span>詳しく見る ›</button></div></article>`).join('');
-const menu=document.querySelector('.menu'),nav=document.querySelector('#nav');function closeMenu(){menu.setAttribute('aria-expanded','false');menu.setAttribute('aria-label','メニューを開く');nav.classList.remove('open');menu.textContent='☰'}menu.onclick=()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',open);menu.setAttribute('aria-label',open?'メニューを閉じる':'メニューを開く');nav.classList.toggle('open',open);menu.textContent=open?'×':'☰'};nav.querySelectorAll('a').forEach(a=>a.onclick=closeMenu);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
-const dialog=document.querySelector('dialog');const content={"thought":["制度の先にいる、一人ひとりを見つめる。","制度や仕組みを整えることと、そこで働く人の気持ちや関係性に目を向けること。私たちは、その両方を大切にしています。\n\n一人ひとりの感情や価値観を理解し、対話を重ねる。人事制度・組織づくり・EQの視点をつなぎ、人と組織がともに成長する道を考えます。"],"company":["株式会社E-マネージ","土島香織\n2009年に起業し、2015年に株式会社E-マネージを設立。\n人事制度・組織づくり・人材育成・EQを軸に、企業・団体・行政・教育機関など、幅広い組織を支援しています。"],"contact":["お問い合わせ","現在、お問い合わせ窓口を準備しています。\n正式な連絡先の掲載まで、今しばらくお待ちください。"],"privacy":["プライバシーポリシー","現在、正式なプライバシーポリシーの掲載準備を進めています。"]};function show(title,text){dialog.querySelector('h2').textContent=title;dialog.querySelector('p').textContent=text;dialog.showModal()}document.querySelectorAll('[data-dialog]').forEach(b=>b.onclick=()=>show(...content[b.dataset.dialog]));document.querySelectorAll('[data-service]').forEach(b=>b.onclick=()=>show(...services[+b.dataset.service]));dialog.querySelector('.close').onclick=()=>dialog.close();
+const menu=document.querySelector('.menu'),nav=document.querySelector('#nav');
+function closeMenu(){menu.setAttribute('aria-expanded','false');menu.setAttribute('aria-label','メニューを開く');nav.classList.remove('open');menu.textContent='☰'}
+menu.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));menu.setAttribute('aria-label',open?'メニューを閉じる':'メニューを開く');nav.classList.toggle('open',open);menu.textContent=open?'×':'☰'});
+nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&menu.getAttribute('aria-expanded')==='true'){closeMenu();menu.focus()}});
+nav.querySelectorAll('a').forEach(a=>{if(a.getAttribute('href')===location.pathname.split('/').pop())a.setAttribute('aria-current','page')});
+const form=document.querySelector('#inquiry-form');
+if(form)form.addEventListener('submit',e=>{e.preventDefault();const data=new FormData(form);const fields=[['会社名・団体名','company'],['お名前','name'],['メールアドレス','email'],['ご相談のテーマ','topic'],['ご相談内容','message']];const text='株式会社E-マネージ ご相談内容（未送信）\n\n'+fields.map(([label,key])=>label+'：'+data.get(key)).join('\n\n');const url=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='E-manage-inquiry.txt';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);document.querySelector('#form-status').textContent='相談内容のファイルを作成しました。ダウンロードをご確認ください。お問い合わせは送信されていません。'});
+
+// Keep the page offset and anchor positions synchronized with the fixed header.
+const siteHeader=document.querySelector('.site>header');
+if(siteHeader){
+ const updateHeaderHeight=()=>document.documentElement.style.setProperty('--site-header-height',siteHeader.getBoundingClientRect().height+'px');
+ updateHeaderHeight();
+ if('ResizeObserver' in window)new ResizeObserver(updateHeaderHeight).observe(siteHeader);
+ else window.addEventListener('resize',updateHeaderHeight);
+}
